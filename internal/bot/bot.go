@@ -27,9 +27,25 @@ func New(token string, logger *slog.Logger, msgs *messages.Store) (*Bot, error) 
 			shell.startHandler,
 		),
 		tgbot.WithMessageTextHandler(
-			"/help",
+			"Помощь",
 			tgbot.MatchTypeExact,
 			shell.helpHandler,
+		),
+		tgbot.WithMessageTextHandler(
+			"Регистрация",
+			tgbot.MatchTypeExact,
+			shell.registrationHandler,
+		),
+		tgbot.WithCallbackQueryDataHandler(
+			"consent:accept",
+			tgbot.MatchTypeExact,
+			shell.consentAcceptHandler,
+		),
+
+		tgbot.WithCallbackQueryDataHandler(
+			"consent:decline",
+			tgbot.MatchTypeExact,
+			shell.consentDeclineHandler,
 		),
 	}
 

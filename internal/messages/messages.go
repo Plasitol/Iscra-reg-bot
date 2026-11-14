@@ -5,12 +5,13 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"path"
 	"strings"
 	"text/template"
 )
 
-//go:embed *.md
+// довольно опасно, не кладите в message env!!!
+
+//go:embed all:*
 var embedded embed.FS
 
 // plasitol
@@ -19,39 +20,50 @@ var embedded embed.FS
 // Ключи как константы: опечатка станет ошибкой компиляции, а не рантайма.
 const (
 	// default-значения для вызова из кода
-	Start   = "default/start"
+	Start   = "start"
 	Help    = "default/help"
 	Unknown = "default/unknown"
+
+	// регистрация
+	Registration = "registration/reg"
+	Decline      = "registration/decline"
+	Accept       = "registration/accept"
 )
 
-// Ключи, которые обязаны существовать.
-var required = []string{Start, Help}
+// Ключи, которые обязаны существовать (проверяются при старте)
+var required = []string{Start, Help, Unknown, Accept, Decline, Registration}
 
 type Store struct {
 	tmpl *template.Template
 }
 
-// Load читает все *.md из fs.FS. Ключ = имя файла без расширения.
+// Load рекурсивно читает все *.md из fs.FS.
+// Ключ = путь без расширения, например "default/help".
 func Load(fsys fs.FS) (*Store, error) {
 	t := template.New("")
 
-	files, err := fs.Glob(fsys, "*.md")
+	err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.HasSuffix(p, ".md") {
+			return nil
+		}
+
+		data, err := fs.ReadFile(fsys, p)
+		if err != nil {
+			return fmt.Errorf("read %s: %w", p, err)
+		}
+
+		name := strings.TrimSuffix(p, ".md")
+		if _, err := t.New(name).Parse(string(data)); err != nil {
+			return fmt.Errorf("parse %s: %w", p, err)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	for _, f := range files {
-		data, err := fs.ReadFile(fsys, f)
-		if err != nil {
-			return nil, fmt.Errorf("read %s: %w", f, err)
-		}
-		name := strings.TrimSuffix(path.Base(f), ".md")
-		if _, err := t.New(name).Parse(string(data)); err != nil {
-			return nil, fmt.Errorf("parse %s: %w", f, err)
-		}
-	}
-
-	s := &Store{tmpl: t}
 
 	// Fail fast: проверяем при старте, а не когда юзер нажмёт /help.
 	for _, key := range required {
@@ -59,7 +71,8 @@ func Load(fsys fs.FS) (*Store, error) {
 			return nil, fmt.Errorf("отсутствует обязательный текст %q", key)
 		}
 	}
-	return s, nil
+
+	return &Store{tmpl: t}, nil
 }
 
 // LoadEmbedded использует файлы, вшитые в бинарник.

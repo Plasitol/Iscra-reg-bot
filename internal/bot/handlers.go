@@ -8,31 +8,37 @@ import (
 	"plasitol.dev/iscrav1/internal/messages"
 )
 
-func (shell *Bot) reply(
+func (shell *Bot) replyHandler(
 	ctx context.Context,
 	tgcl *tgbot.Bot,
 	update *models.Update,
 	key string,
 	data any,
+	keyboard models.ReplyMarkup,
 ) {
 	user := update.Message.From
 
 	text, err := shell.msgs.Get(key, data)
 	if err != nil {
-		shell.logger.Error("Не удалось получить текст", "key", key, "error", err)
+		shell.logger.Error(
+			"[handler] Не удалось получить текст",
+			"key", key,
+			"error", err)
 		return
 	}
 	_, err = tgcl.SendMessage(ctx, &tgbot.SendMessageParams{
-		ChatID:    update.Message.Chat.ID,
-		Text:      text,
-		ParseMode: models.ParseModeMarkdown,
+		ChatID:      update.Message.Chat.ID,
+		Text:        text,
+		ParseMode:   models.ParseModeMarkdown,
+		ReplyMarkup: keyboard,
 	})
 	if err != nil {
 		shell.logger.Error(
 			"Ошибка отправки", "key", key,
 			"error", err,
 			"telegram_id", user.ID,
-			"username", user.Username)
+			"username", user.Username,
+		)
 	}
 }
 
@@ -50,14 +56,19 @@ func (shell *Bot) startHandler(
 		"username", user.Username,
 	)
 
-	shell.reply(ctx, tgcl, update, messages.Start, map[string]any{
+	shell.replyHandler(ctx, tgcl, update, messages.Start, map[string]any{
 		"Name": user.FirstName,
-	})
+	}, mainKeyboard())
 }
 
-// обработка команды /help
+// обработка команды (Регистрация)
+func (shell *Bot) registrationHandler(ctx context.Context, tgcl *tgbot.Bot, update *models.Update) {
+	shell.replyHandler(ctx, tgcl, update, messages.Registration, nil, consentKeyboard())
+}
+
+// обработка команды (Помощь)
 func (shell *Bot) helpHandler(ctx context.Context, tgcl *tgbot.Bot, update *models.Update) {
-	shell.reply(ctx, tgcl, update, messages.Help, nil)
+	shell.replyHandler(ctx, tgcl, update, messages.Help, nil, nil)
 }
 
 // обработка дефолта
@@ -65,5 +76,5 @@ func (shell *Bot) defaultHandler(ctx context.Context, tgcl *tgbot.Bot, update *m
 	if update.Message == nil {
 		return
 	}
-	shell.reply(ctx, tgcl, update, messages.Unknown, nil) // можете просто заменить на Help
+	shell.replyHandler(ctx, tgcl, update, messages.Unknown, nil, nil) // можете просто заменить на Help
 }

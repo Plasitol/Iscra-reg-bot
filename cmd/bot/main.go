@@ -44,7 +44,7 @@ func main() {
 	)
 	defer stop()
 
-	// Инициализруем бота
+	// инициализруем бота
 	appBot, err := ghostshell.New(
 		father_key,
 		logger,
