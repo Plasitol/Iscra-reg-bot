@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
+	ghostshell "plasitol.dev/iscrav1/internal/bot"
 )
 
 func main() {
@@ -25,29 +26,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	//
-	father_key := os.Getenv("BOT_FATHER")
-	//
+	father_key := os.Getenv("BOT_TOKEN")
 
-	// оболочка бота
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM, // предохранитель
+	)
+	defer stop()
 
-	opts := []bot.Option{
-		bot.WithDefaultHandler(defaultHandler),
-		bot.WithMessageTextHandler("/start", bot.MatchTypeExact, startHandler),
-	}
-
-	shellbot, err := bot.New(father_key, opts...)
+	// Инициализруем бота
+	appBot, err := ghostshell.New(
+		father_key,
+		logger,
+	)
 	if err != nil {
-		logger.Error("Бот не может запуститься...", err)
+		logger.Error("Бот не может запуститься... ", err)
 		client := &http.Client{Timeout: 3 * time.Second} // Проверка соединения
 		resp, err := client.Get("https://telegram.org")
 		if err != nil {
-			logger.Error("Проверьте стабильность интернет соединения/ВПН для работы бота", err)
+			logger.Error("Проверьте стабильность интернет соединения/ВПН для работы бота: ", err)
 		}
 		defer resp.Body.Close()
 	}
 
-	shellbot.Start(ctx)
+	logger.Info("Бот запущен!")
+	appBot.Start(ctx)
 }
