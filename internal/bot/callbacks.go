@@ -147,10 +147,10 @@ func (shell *Bot) consentAcceptHandler(
 		messages.Accept, // TODO
 	)
 
-	shell.deleteCallbackMessage(ctx, tgcl, update)
-
 	// TODO:
 	// сохранить согласие через Consent Service
+
+	shell.deleteCallbackMessage(ctx, tgcl, update)
 
 	shell.replyCallback(
 		ctx,

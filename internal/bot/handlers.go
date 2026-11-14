@@ -29,7 +29,7 @@ func (shell *Bot) replyHandler(
 	_, err = tgcl.SendMessage(ctx, &tgbot.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        text,
-		ParseMode:   models.ParseModeMarkdown,
+		ParseMode:   models.ParseModeHTML,
 		ReplyMarkup: keyboard,
 	})
 	if err != nil {
@@ -63,6 +63,22 @@ func (shell *Bot) startHandler(
 
 // обработка команды (Регистрация)
 func (shell *Bot) registrationHandler(ctx context.Context, tgcl *tgbot.Bot, update *models.Update) {
+	user := update.Message.From
+
+	done, err := shell.users.IsRegistered(ctx, user.ID)
+	if err != nil {
+		shell.logger.Error(
+			"Проверка регистрации",
+			"error", err,
+			"telegram_id", user.ID,
+			"username", user.Username)
+		return
+	}
+	if done {
+		shell.replyHandler(ctx, tgcl, update, messages.AlreadyRegistered, nil, nil)
+		return
+	}
+
 	shell.replyHandler(ctx, tgcl, update, messages.Registration, nil, consentKeyboard())
 }
 

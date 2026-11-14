@@ -12,6 +12,8 @@ import (
 	"github.com/joho/godotenv"
 	ghostshell "plasitol.dev/iscrav1/internal/bot"
 	txt "plasitol.dev/iscrav1/internal/messages"
+	"plasitol.dev/iscrav1/internal/storage"
+	"plasitol.dev/iscrav1/internal/user"
 )
 
 func main() {
@@ -29,13 +31,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	father_key := os.Getenv("BOT_TOKEN")
+	data_json := os.Getenv("DATA_PATH")
+
 	msgs, err := txt.LoadEmbedded()
 	if err != nil {
 		logger.Error("Не удалось загрузить тексты", "error", err)
 		os.Exit(1)
 	}
 
-	father_key := os.Getenv("BOT_TOKEN")
+	store, err := storage.NewJSON(data_json)
+	if err != nil {
+		logger.Error("Не удалось открыть хранилище", "error", err)
+		os.Exit(1)
+	}
+	users := user.NewService(store)
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
@@ -49,6 +59,7 @@ func main() {
 		father_key,
 		logger,
 		msgs,
+		users,
 	)
 	if err != nil {
 		logger.Error("Бот не может запуститься... ", "error", err)

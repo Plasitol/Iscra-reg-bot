@@ -6,50 +6,24 @@ import (
 
 	tgbot "github.com/go-telegram/bot"
 	"plasitol.dev/iscrav1/internal/messages"
+	"plasitol.dev/iscrav1/internal/user"
 )
 
 type Bot struct {
 	client *tgbot.Bot
 	logger *slog.Logger
 	msgs   *messages.Store
+	users  *user.Service
 }
 
-func New(token string, logger *slog.Logger, msgs *messages.Store) (*Bot, error) {
+func New(token string, logger *slog.Logger, msgs *messages.Store, users *user.Service) (*Bot, error) {
 	shell := &Bot{
 		logger: logger,
 		msgs:   msgs,
-	}
-	opts := []tgbot.Option{
-		tgbot.WithDefaultHandler(shell.defaultHandler),
-		tgbot.WithMessageTextHandler(
-			"/start",
-			tgbot.MatchTypeExact,
-			shell.startHandler,
-		),
-		tgbot.WithMessageTextHandler(
-			"Помощь",
-			tgbot.MatchTypeExact,
-			shell.helpHandler,
-		),
-		tgbot.WithMessageTextHandler(
-			"Регистрация",
-			tgbot.MatchTypeExact,
-			shell.registrationHandler,
-		),
-		tgbot.WithCallbackQueryDataHandler(
-			"consent:accept",
-			tgbot.MatchTypeExact,
-			shell.consentAcceptHandler,
-		),
-
-		tgbot.WithCallbackQueryDataHandler(
-			"consent:decline",
-			tgbot.MatchTypeExact,
-			shell.consentDeclineHandler,
-		),
+		users:  users,
 	}
 
-	client, err := tgbot.New(token, opts...)
+	client, err := tgbot.New(token, shell.routes()...)
 	if err != nil {
 		return nil, err
 	}

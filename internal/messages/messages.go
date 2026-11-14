@@ -20,18 +20,19 @@ var embedded embed.FS
 // Ключи как константы: опечатка станет ошибкой компиляции, а не рантайма.
 const (
 	// default-значения для вызова из кода
-	Start   = "start"
-	Help    = "default/help"
-	Unknown = "default/unknown"
+	Start   = "texts/default/start"
+	Help    = "texts/default/help"
+	Unknown = "texts/default/unknown"
 
 	// регистрация
-	Registration = "registration/reg"
-	Decline      = "registration/decline"
-	Accept       = "registration/accept"
+	Registration      = "texts/registration/reg"
+	Decline           = "texts/registration/decline"
+	Accept            = "texts/registration/accept"
+	AlreadyRegistered = "texts/registration/alreadyreg"
 )
 
 // Ключи, которые обязаны существовать (проверяются при старте)
-var required = []string{Start, Help, Unknown, Accept, Decline, Registration}
+var required = []string{Start, Help, Unknown, Accept, Decline, Registration, AlreadyRegistered}
 
 type Store struct {
 	tmpl *template.Template
