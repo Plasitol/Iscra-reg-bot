@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	ghostshell "plasitol.dev/iscrav1/internal/bot"
+	txt "plasitol.dev/iscrav1/internal/messages"
 )
 
 func main() {
@@ -28,6 +29,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	msgs, err := txt.LoadEmbedded()
+	if err != nil {
+		logger.Error("Не удалось загрузить тексты", "error", err)
+		os.Exit(1)
+	}
+
 	father_key := os.Getenv("BOT_TOKEN")
 
 	ctx, stop := signal.NotifyContext(
@@ -41,15 +48,17 @@ func main() {
 	appBot, err := ghostshell.New(
 		father_key,
 		logger,
+		msgs,
 	)
 	if err != nil {
 		logger.Error("Бот не может запуститься... ", "error", err)
 		client := &http.Client{Timeout: 3 * time.Second} // Проверка соединения
-		resp, err := client.Get("https://telegram.org")
-		if err != nil {
+		resp, probeErr := client.Get("https://telegram.org")
+		if probeErr != nil {
 			logger.Error("Проверьте стабильность интернет соединения/ВПН для работы бота: ", "error", err)
+		} else {
+			resp.Body.Close()
 		}
-		defer resp.Body.Close()
 		os.Exit(1)
 	}
 
