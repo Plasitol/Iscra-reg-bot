@@ -19,10 +19,12 @@ func main() {
 		Level: slog.LevelInfo,
 	}))
 
+	logger.Info("Пробуем запуститься...")
+
 	// секреты + конфиг
 	err := godotenv.Load()
 	if err != nil {
-		logger.Error(".env файл поврежден или не найден: ", err)
+		logger.Error(".env файл поврежден или не найден: ", "error", err)
 		os.Exit(1)
 	}
 
@@ -41,13 +43,14 @@ func main() {
 		logger,
 	)
 	if err != nil {
-		logger.Error("Бот не может запуститься... ", err)
+		logger.Error("Бот не может запуститься... ", "error", err)
 		client := &http.Client{Timeout: 3 * time.Second} // Проверка соединения
 		resp, err := client.Get("https://telegram.org")
 		if err != nil {
-			logger.Error("Проверьте стабильность интернет соединения/ВПН для работы бота: ", err)
+			logger.Error("Проверьте стабильность интернет соединения/ВПН для работы бота: ", "error", err)
 		}
 		defer resp.Body.Close()
+		os.Exit(1)
 	}
 
 	logger.Info("Бот запущен!")

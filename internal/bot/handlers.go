@@ -16,7 +16,7 @@ func (shell *Bot) startHandler(
 	user := update.Message.From
 
 	shell.logger.Info(
-		"Пользователь запустил бота",
+		"Юзер запустил бота",
 		"telegram_id", user.ID,
 		"username", user.Username,
 	)
