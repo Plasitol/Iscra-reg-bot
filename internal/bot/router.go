@@ -12,8 +12,13 @@ const (
 
 // Callback данные инлайн кнопок
 const (
+	// обработка пд
 	cbConsentAccept  = "consent:accept"
 	cbConsentDecline = "consent:decline"
+
+	// регистрация
+	reRegistrationConfirm = "registration:confirm"
+	reRegistraionEdit     = "registration:edit"
 )
 
 func (shell *Bot) routes() []tgbot.Option {
@@ -29,7 +34,11 @@ func (shell *Bot) routes() []tgbot.Option {
 		tgbot.WithMessageTextHandler(btnRegistration, tgbot.MatchTypeExact, shell.registrationHandler),
 
 		// инлайн кнопки
+		// обработка пд
 		tgbot.WithCallbackQueryDataHandler(cbConsentAccept, tgbot.MatchTypeExact, shell.consentAcceptHandler),
 		tgbot.WithCallbackQueryDataHandler(cbConsentDecline, tgbot.MatchTypeExact, shell.consentDeclineHandler),
+		// обработка регистрации
+		tgbot.WithCallbackQueryDataHandler("registration:confirm", tgbot.MatchTypeExact, shell.confirmHandler),
+		tgbot.WithCallbackQueryDataHandler("registration:edit", tgbot.MatchTypeExact, shell.editHandler),
 	}
 }

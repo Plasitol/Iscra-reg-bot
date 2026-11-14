@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	ghostshell "plasitol.dev/iscrav1/internal/bot"
 	txt "plasitol.dev/iscrav1/internal/messages"
+	registration "plasitol.dev/iscrav1/internal/registation"
 	"plasitol.dev/iscrav1/internal/storage"
 	"plasitol.dev/iscrav1/internal/user"
 )
@@ -47,6 +48,8 @@ func main() {
 	}
 	users := user.NewService(store)
 
+	sessions := registration.NewSessions()
+
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
@@ -60,6 +63,7 @@ func main() {
 		logger,
 		msgs,
 		users,
+		sessions,
 	)
 	if err != nil {
 		logger.Error("Бот не может запуститься... ", "error", err)

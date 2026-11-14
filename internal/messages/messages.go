@@ -29,6 +29,9 @@ const (
 	Decline           = "texts/registration/decline"
 	Accept            = "texts/registration/accept"
 	AlreadyRegistered = "texts/registration/alreadyreg"
+	Summary           = "texts/registration/summary"
+	TryLater          = "texts/registration/registationtimeout"
+	RegistrationDone  = "texts/registration/registartiond"
 )
 
 // Ключи, которые обязаны существовать (проверяются при старте)

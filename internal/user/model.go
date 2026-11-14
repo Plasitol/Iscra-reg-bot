@@ -11,10 +11,13 @@ var (
 )
 
 type User struct {
-	// требуемая информация
-	TelegramID   int64  `json:"telegram_id"`
+	// из Telegram
+	TelegramID int64  `json:"telegram_id"`
+	Username   string `json:"username,omitempty"`
+
+	// данные регистрации
 	FullName     string `json:"full_name"`
-	Passport     int64  `json:"passport"`
+	Passport     string `json:"passport"`
 	BirthDate    string `json:"birth_date"`
 	Phone        string `json:"phone"`
 	Email        string `json:"email"`

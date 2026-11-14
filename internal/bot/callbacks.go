@@ -7,6 +7,7 @@ import (
 	"github.com/go-telegram/bot/models"
 
 	"plasitol.dev/iscrav1/internal/messages"
+	registration "plasitol.dev/iscrav1/internal/registation"
 )
 
 // короткое уведомление Showalert
@@ -140,6 +141,7 @@ func (shell *Bot) consentAcceptHandler(
 		"[callback] Пользователь нажал кнопку согласия",
 	)
 
+	// TODO: реши проблему registation/accept
 	shell.answerCallback( //на ваше усмотрение, надо ли вам это?
 		ctx,
 		tgcl,
@@ -147,10 +149,11 @@ func (shell *Bot) consentAcceptHandler(
 		messages.Accept, // TODO
 	)
 
-	// TODO:
-	// сохранить согласие через Consent Service
-
+	// старт сессии регистарции
+	from := update.CallbackQuery.From
+	shell.sessions.Start(from.ID)
 	shell.deleteCallbackMessage(ctx, tgcl, update)
+	shell.sendKey(ctx, tgcl, from.ID, registration.Fields[0].Prompt, nil, nil)
 
 	shell.replyCallback(
 		ctx,
@@ -176,6 +179,7 @@ func (shell *Bot) consentDeclineHandler(
 		"[callback] Пользователь нажал кнопку отказа",
 	)
 
+	// TODO: реши проблему registation/accept
 	shell.answerCallback( //на ваше усмотрение, надо ли вам это?
 		ctx,
 		tgcl,
