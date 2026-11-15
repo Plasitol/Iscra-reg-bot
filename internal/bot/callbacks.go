@@ -137,9 +137,9 @@ func (shell *Bot) consentAcceptHandler(
 		return
 	}
 
-	shell.logger.Info(
-		"[callback] Пользователь нажал кнопку согласия",
-	)
+	// shell.logger.Info(
+	// 	"[callback] Пользователь нажал кнопку согласия",
+	// )
 
 	// TODO: реши проблему registation/accept
 	shell.answerCallback( //на ваше усмотрение, надо ли вам это?
@@ -175,9 +175,9 @@ func (shell *Bot) consentDeclineHandler(
 		return
 	}
 
-	shell.logger.Info(
-		"[callback] Пользователь нажал кнопку отказа",
-	)
+	// shell.logger.Info(
+	// 	"[callback] Пользователь нажал кнопку отказа",
+	// )
 
 	// TODO: реши проблему registation/accept
 	shell.answerCallback( //на ваше усмотрение, надо ли вам это?

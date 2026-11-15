@@ -35,7 +35,18 @@ const (
 )
 
 // Ключи, которые обязаны существовать (проверяются при старте)
-var required = []string{Start, Help, Unknown, Accept, Decline, Registration, AlreadyRegistered}
+var required = []string{
+	Start,
+	Help,
+	Unknown,
+	Accept,
+	Decline,
+	Registration,
+	AlreadyRegistered,
+	Summary,
+	TryLater,
+	RegistrationDone,
+}
 
 type Store struct {
 	tmpl *template.Template

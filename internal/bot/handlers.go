@@ -80,7 +80,7 @@ func (shell *Bot) confirmHandler(ctx context.Context, tgcl *tgbot.Bot, update *m
 		Organization: a["organization"],
 		ConsentAt:    sess.ConsentAt,
 	})
-
+	repo
 	switch {
 	case err == nil:
 		shell.sessions.Delete(from.ID)
